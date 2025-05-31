@@ -5,17 +5,17 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/marwanhawari/stew/constants"
-	"github.com/mholt/archiver"
 	progressbar "github.com/schollz/progressbar/v3"
 )
 
 func isArchiveFile(filePath string) bool {
-	_, err := archiver.ByExtension(filePath)
+	err := exec.Command("lsar", "-no-recursion", filePath).Run()
 	return err == nil
 }
 
@@ -285,7 +285,7 @@ func FindBinaryInLockFile(lockFile LockFile, binaryName string) (int, bool) {
 func extractBinary(downloadedFilePath, tmpExtractionPath, desiredBinaryRename string) error {
 	isArchive := isArchiveFile(downloadedFilePath)
 	if isArchive {
-		err := archiver.Unarchive(downloadedFilePath, tmpExtractionPath)
+		err := exec.Command("unar", "-quiet", "-no-directory", "-force-overwrite", "-o", tmpExtractionPath, downloadedFilePath).Run()
 		if err != nil {
 			return err
 		}
